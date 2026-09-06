@@ -47,3 +47,4 @@ dist/
 # SQLite databases
 *.db
 *.sqlite3
+

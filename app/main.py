@@ -4,9 +4,14 @@ from .database import engine, sessionLocal, get_db
 from .router import post, users, auth , vote
 from .config import settings
 from fastapi.middleware.cors import CORSMiddleware
-models.Base.metadata.create_all(bind = engine)
+from contextlib import asynccontextmanager
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    models.Base.metadata.create_all(bind=engine)
+    yield
+
+app = FastAPI(lifespan=lifespan)
 
 # while True:
 #     try:
@@ -42,4 +47,4 @@ app.include_router(vote.router)
 
 @app.get("/")
 def root():
-    return {"message" : "hello form docker "}
+    return {"message" : "hello from docker"}

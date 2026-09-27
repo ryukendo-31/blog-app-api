@@ -13,23 +13,6 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# while True:
-#     try:
-#         conn = psycopg.connect(
-#             host = 'localhost', 
-#             dbname = 'fastapi', 
-#             user = 'postgres',
-#             password = 'apple',
-#             row_factory= dict_row
-#         )
-#         cursor = conn.cursor()
-#         print("database connected successfully")
-#         break
-#     except Exception as error:
-#         print("connecting to database failed!")
-#         print("Error: ", error)
-#         time.sleep(2)
-
 origins = ["*"]
 
 app.add_middleware(

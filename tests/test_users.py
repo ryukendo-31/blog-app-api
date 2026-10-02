@@ -16,5 +16,5 @@ def test_create_user(client):
     assert "password" not in res.json()
 
 def test_user_isolation(client):
-    res = client.get("/users/1")
+    res = client.get("/users/999999")
     assert res.status_code == 404

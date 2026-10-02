@@ -15,12 +15,19 @@ os.environ["DATABASE_PASSWORD"] = os.getenv("DATABASE_PASSWORD")
 from app.main import app
 
 @pytest.fixture
-def client():
+def client(db_session):
+    def override_get_db():
+        yield db_session
+
+    app.dependency_overrides[get_db] = override_get_db
+
     with TestClient(app) as client:
         yield client
 
+    app.dependency_overrides.clear()
+
 from app import models
-from app.database import engine
+from app.database import engine, sessionLocal, get_db
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_database():
@@ -29,9 +36,33 @@ def setup_database():
     yield
     models.Base.metadata.drop_all(bind=engine)
 
-@pytest.fixture(autouse=True)
-def clean_database():
-    yield
-    with engine.begin() as conn:
-        for table in reversed(models.Base.metadata.sorted_tables):
-            conn.execute(table.delete())
+# @pytest.fixture(autouse=True)
+# def clean_database():
+#     yield
+#     with engine.begin() as conn:
+#         for table in reversed(models.Base.metadata.sorted_tables):
+#             conn.execute(table.delete())
+
+@pytest.fixture
+def db_transaction():
+    connection = engine.connect()
+    transaction = connection.begin()
+
+    yield connection
+
+    transaction.rollback()
+    connection.close()
+
+@pytest.fixture
+def db_session(db_transaction):
+    db = sessionLocal(
+        bind=db_transaction,
+        join_transaction_mode="create_savepoint"
+    )
+
+    yield db
+
+    db.close()
+
+
+

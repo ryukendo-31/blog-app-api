@@ -1,7 +1,7 @@
 services:
 
   api:
-    image: aaryan31/blog-app:v1.2
+    image: aaryan31/blog-app:latest
     ports:
       - "8000:8000"
     env_file:
